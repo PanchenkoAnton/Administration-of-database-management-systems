@@ -1,4 +1,4 @@
-USE SampleDB;
+USE master;
 GO
 DROP PROCEDURE IF EXISTS CreateBackup 
 GO
@@ -26,9 +26,20 @@ BEGIN
 		)
 	)
 -- (SELECT CONVERT(VARCHAR(20), GETDATE(), 126))
-	SET @BackupPath = 'D:\tmp_backups\' + @dbName + '_full_' + @CurrentDate + '.bak'
-	BACKUP DATABASE @dbName
-	TO
-	DISK = @BackupPath
-	WITH INIT;
+	IF @isFull = 1
+		BEGIN
+			SET @BackupPath = 'D:\tmp_backups\' + @dbName + '_full_' + @CurrentDate + '.bak'
+			BACKUP DATABASE @dbName
+			TO
+			DISK = @BackupPath
+			WITH INIT;
+		END
+	ELSE
+		BEGIN
+			SET @BackupPath = 'D:\tmp_backups\' + @dbName + '_diff_' + @CurrentDate + '.bak'
+			BACKUP DATABASE @dbName
+			TO
+			DISK = @BackupPath
+			WITH DIFFERENTIAL, INIT;
+		END
 END
