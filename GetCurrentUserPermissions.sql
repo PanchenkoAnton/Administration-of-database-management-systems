@@ -1,4 +1,4 @@
-USE Sample;
+USE SampleDB;
 GO
 CREATE PROCEDURE GetCurrentUserPermissions AS
 BEGIN

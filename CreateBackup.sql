@@ -1,4 +1,4 @@
-USE Sample;
+USE SampleDB;
 GO
 DROP PROCEDURE IF EXISTS CreateBackup 
 GO
