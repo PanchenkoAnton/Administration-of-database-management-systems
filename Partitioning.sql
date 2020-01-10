@@ -1,0 +1,63 @@
+USE master;
+DROP DATABASE IF EXISTS partDB
+GO
+CREATE DATABASE partDB;
+GO
+USE master;
+GO
+--
+ALTER DATABASE partDB
+ADD FILEGROUP g1;
+
+ALTER DATABASE partDB
+ADD FILEGROUP g2;
+
+ALTER DATABASE partDB
+ADD FILEGROUP g3;
+--
+ALTER DATABASE partDB
+ADD FILE
+(
+NAME = f1,
+FILENAME = 'D:\db-files\f1.ndf'
+) TO FILEGROUP g1;
+
+ALTER DATABASE partDB
+ADD FILE
+(
+NAME = f2,
+FILENAME = 'D:\db-files\f2.ndf'
+) TO FILEGROUP g2;
+
+ALTER DATABASE partDB
+ADD FILE
+(
+NAME = f3,
+FILENAME = 'D:\db-files\f3.ndf'
+) TO FILEGROUP g3;
+--
+CREATE PARTITION FUNCTION new_pf5(int)
+AS
+RANGE LEFT
+FOR VALUES (10, 20)
+--
+CREATE PARTITION SCHEME my_ps
+AS PARTITION new_pf5
+TO (g1, g2, g3)
+--
+CREATE TABLE t1 (c1 int, c2 int)
+ON my_ps(c1);
+--
+CREATE TABLE split_table(c1 int, c2 int);
+DECLARE @i INT
+SET @i=0;
+WHILE (@i<30)
+BEGIN
+	INSERT INTO split_table(c1, c2)
+	VALUES (@i, @i*2);
+
+	SET @i = @i + 1;
+END;
+--
+INSERT INTO t1(c1, c2)
+SELECT c1, c2 FROM split_table;
